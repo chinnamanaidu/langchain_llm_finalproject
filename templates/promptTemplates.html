@@ -155,19 +155,30 @@
       -->
       <div class="col-md-10">
         <div class="well">
-          <h5>Enter the LLM Query: Ask a question about a book or author from openlibrary.org . Enter "exit" to quit.</h5>
+          <h5>Enter the LLM Query: Prompt Template </h5>
            
-          <form class="mb-3" action="/getOpenApiPostData" method="post">
+          <form class="mb-3" action="/getQuoteGenPostData" method="post">
             
             {%
               for geo in  responsedata['respdata'] %}
+            <h5>Question asked to Open Text Description link  LLM:</h5>
             <input class="form-control mr-lg-2" type="text" name="question1" id="question1" placeholder="question1" 
             aria-label="question1" value='{{ question }}' ><br>
-            <label for="exampleFormControlTextarea1" class="form-label">Answer to the qusetion from OpenAPI </label>
-            <textarea class="form-control" id="exampleFormControlTextarea1" id='answer', name='answer', rows="10">{{ answer  }} </textarea>
+            <label for="exampleFormControlTextarea1" class="form-label"><h5>Answer to the question from Open Text LLM </h5></label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" id='answer', name='answer', rows="2">{{ answer  }} </textarea>
             {%   
-              endfor %}
-            <input class="form-control mr-lg-2" type="text" name="question" id="question" placeholder="question" aria-label="question"><br>
+              endfor %}            
+              <h5>Enter the Prompt Template: The Examples</h5>          
+              <textarea class="form-control"  name='examples' id="examples" placeholder="examples" rows="2">{{ examples }}</textarea><br>
+              <h5>Enter the Prompt Template: The Source format of Text</h5>          
+              <textarea class="form-control"  name='example_format' id="example_format" placeholder="example_format" rows="2">{{ example_format }}</textarea><br>
+              <h5>Enter the Prompt Template: The Prefix format of Text</h5>          
+              <textarea class="form-control"  name='prefix' id="prefix" placeholder="prefix" rows="2">{{ prefix }}</textarea><br>
+              <h5>Enter the Prompt Template: The Suffix format of Text</h5>          
+              <textarea class="form-control"  name='suffix' id="suffix" placeholder="suffix" rows="2">{{ suffix }}</textarea><br>
+            <h5>Enter the Query below : query to prompt (example grime)</h5>
+            <input class="form-control mr-lg-2" type="text" name="question" id="question" placeholder="question" aria-label="question" 
+            value="grime"><br>
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Submit</button>
           </form>
           <!--

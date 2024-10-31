@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from langchain.chains import LLMChain
 from langchain.chains.constitutional_ai.base import ConstitutionalChain
 from langchain.chains.constitutional_ai.models import ConstitutionalPrinciple
-from langchain.prompts import ChatPromptTemplate
+from langchain.prompts import ChatPromptTemplate,FewShotPromptTemplate,PromptTemplate
 from langchain.chains import APIChain
 import os
 from langchain.document_loaders import PyPDFLoader
@@ -480,29 +480,78 @@ def getEventPlannerPostData():
 
 @app.route("/getPromptTemplateForm", methods=['GET'])
 def getPromptTemplateForm():
+    examples =  [
+    {
+        "query": "rat",
+        "answer": "The cat sat next to the bat."
+    }, {
+        "query": "frog",
+        "answer": "A dog hops a log in the bog."
+    }, {
+        "query": "ten",
+        "answer": "Ben sent ten hens to the glen."
+    }
+    ]
+  
+    example_format = """
+    Human: {query}
+    AI: {answer}
+    """
+    suffix = """
+    Human: {query}
+    AI: 
+    """
+    prefix = """
+    Here are examples between a human and AI. The human provides a word, and
+    the AI provides a single sentence with easy to read words that mostly rhyme
+    with the word the human provided. The sentence does not have to include the 
+    original word. For example:
+    """
     responsedata = { }
-    return render_template("promptTemplates.html", responsedata=responsedata, init_page="initpage")
+    return render_template("promptTemplates.html", examples=examples, example_format=example_format, suffix=suffix,prefix=prefix,
+                           responsedata=responsedata, init_page="initpage")
 
 @app.route("/getQuoteGenPostData", methods=['POST'])
 def getQuoteGenPostData():
     question = request.form.get("question")
-    spec_str = """Open Library provides ."""
-
-    llm = ChatGoogleGenerativeAI(google_api_key=GEMINI_API_KEY, model=GEMINI_MODEL, temperature=0.9)
-    chain = APIChain.from_llm_and_api_docs(
-    llm,
-    spec_str,
-    #verbose = True,
-    limit_to_domains=["https://openlibrary.org/"])
-    
-    
-
-    resdata = [{
+    suffix = request.form.get("suffix")
+    example_format = request.form.get("example_format")
+    examples = request.form.get("examples")
+    examples =  [
+    {
+        "query": "rat",
+        "answer": "The cat sat next to the bat."
+    }, {
+        "query": "frog",
+        "answer": "A dog hops a log in the bog."
+    }, {
+        "query": "ten",
+        "answer": "Ben sent ten hens to the glen."
     }
     ]
+    prefix = request.form.get("prefix")
+    spec_str = """Open Library provides ."""
+    print(examples)
+    llm = ChatGoogleGenerativeAI(google_api_key=GEMINI_API_KEY, model=GEMINI_MODEL, temperature=0.3)
+    
+    example_template = PromptTemplate(
+    input_variables=["query", "answer"],
+    template=example_format)
+    
+    prompt_template = FewShotPromptTemplate(
+    examples=examples,
+    example_prompt=example_template,
+    input_variables=["query"],
+    prefix=prefix,
+    suffix=suffix,
+    example_separator="\n\n")
+    chain = LLMChain(llm=llm, prompt=prompt_template)
+
+    resdata = [    
+    ]
     query = {"question": question}
-    response = chain.invoke(query)
-    answer = response["output"]
+    response = chain.run(question)
+    answer = response
     querydata = {'question': question,
              'answer': answer}
     resdata.append(querydata)
@@ -510,7 +559,8 @@ def getQuoteGenPostData():
     responsedata = { 'respdata': resdata
     }
    
-    return render_template("promptTemplates.html",  question=question, answer=answer, responsedata=responsedata, init_page="initpage")
+    return render_template("promptTemplates.html",  examples=examples, example_format=example_format, suffix=suffix,prefix=prefix,
+                            question=question, answer=answer, responsedata=responsedata, init_page="initpage")
     
 
 
