@@ -99,7 +99,7 @@
                 </li>
                 <li class="nav-item dropdown">
                   <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
-                    Emerging AI Topics Day 2
+                    Advanced AI Topics
                   </button>
                   <ul class="dropdown-menu dropdown-menu-dark">
                     <li><a class="dropdown-item" href="/getPromptTemplateForm">Prompt Templates</a></li>
@@ -109,6 +109,7 @@
                     <li><a class="dropdown-item" href="/getLnsAgentForm">LNS Agent</a></li>
                   </ul>
                 </li>
+                <!--
                 <li class="nav-item dropdown">
                   <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
                     Emerging AI Topics Day 3
@@ -117,12 +118,13 @@
                     <li><a class="dropdown-item" href="/getStuGenForm">Student Gen AI</a></li>
                   </ul>
                 </li>
+                -->
                 <li class="nav-item dropdown">
                   <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
                     Picure Captioning
                   </button>
                   <ul class="dropdown-menu dropdown-menu-dark">
-                    <li><a class="dropdown-item" href="/getPictureCaptionForm">URL Approach</a></li>
+                    <li><a class="dropdown-item" href="/getPictureCaptionForm">IMG folder</a></li>
                   </ul>
                 </li>                                
               </ul>
@@ -157,14 +159,14 @@
         <div class="well">
           <h5>Enter the LLM Query: Prompt Template </h5>
            
-          <form class="mb-3" action="/getQuoteGenPostData" method="post">
+          <form class="mb-3" action="/getPromptTemplatetData" method="post">
             
             {%
               for geo in  responsedata['respdata'] %}
             <h5>Question asked to Open Text Description link  LLM:</h5>
             <input class="form-control mr-lg-2" type="text" name="question1" id="question1" placeholder="question1" 
             aria-label="question1" value='{{ question }}' ><br>
-            <label for="exampleFormControlTextarea1" class="form-label"><h5>Answer to the question from Open Text LLM </h5></label>
+            <label for="exampleFormControlTextarea1" class="form-label"><h5>Answer to the question from Prompt Template LLM </h5></label>
             <textarea class="form-control" id="exampleFormControlTextarea1" id='answer', name='answer', rows="2">{{ answer  }} </textarea>
             {%   
               endfor %}            

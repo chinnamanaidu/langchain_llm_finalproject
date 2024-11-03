@@ -1,6 +1,4 @@
 from flask import Flask, render_template, redirect, request
-import time
-import requests
 import json
 from scipy import stats
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -14,8 +12,10 @@ import os
 from langchain.document_loaders import PyPDFLoader
 from langchain.chains.question_answering import load_qa_chain
 from langchain_community.document_loaders import WikipediaLoader
-
-                                                                                          
+from transformers import VisionEncoderDecoderModel, ViTFeatureExtractor, AutoTokenizer
+import torch
+from PIL import Image
+                                                                          
 app = Flask(__name__,template_folder ="templates")
 load_dotenv()
 
@@ -37,9 +37,7 @@ def home():
     query = 'give me two dinners to make this week one with chicken and the other vegetarian'
     response = llm.invoke(query)
     llmResponse = response.content
-    resdata = [{
-  
-    }
+    resdata = [
     ]
 
     responsedata = { 'respdata': resdata
@@ -54,9 +52,7 @@ def getPostData():
     query = request.form.get("Search")
     response = llm.invoke(query)
     llmResponse = response.content
-    resdata = [{
-  
-    }
+    resdata = [
     ]
 
     responsedata = { 'respdata': resdata
@@ -91,9 +87,7 @@ def getPrac1Form():
 
     
     
-    resdata = [{
-  
-    }
+    resdata = [
     ]
 
     responsedata = { 'respdata': resdata
@@ -128,9 +122,7 @@ def getPrac1PostData():
     
     
 
-    resdata = [{
-  
-    }
+    resdata = [
     ]
 
     responsedata = { 'respdata': resdata
@@ -191,8 +183,7 @@ def getOpenApiPostData():
     
     
 
-    resdata = [{
-    }
+    resdata = [
     ]
     query = {"question": question}
     response = chain.invoke(query)
@@ -389,8 +380,7 @@ def getConversationalMemoryPostData():
     
     
 
-    resdata = [{
-    }
+    resdata = [
     ]
     query = {"question": question}
     response = chain.invoke(query)
@@ -425,8 +415,7 @@ def getSummaryMemoryPostData():
     
     
 
-    resdata = [{
-    }
+    resdata = [
     ]
     query = {"question": question}
     response = chain.invoke(query)
@@ -461,8 +450,7 @@ def getEventPlannerPostData():
     
     
 
-    resdata = [{
-    }
+    resdata = [
     ]
     query = {"question": question}
     response = chain.invoke(query)
@@ -511,8 +499,8 @@ def getPromptTemplateForm():
     return render_template("promptTemplates.html", examples=examples, example_format=example_format, suffix=suffix,prefix=prefix,
                            responsedata=responsedata, init_page="initpage")
 
-@app.route("/getQuoteGenPostData", methods=['POST'])
-def getQuoteGenPostData():
+@app.route("/getPromptTemplatetData", methods=['POST'])
+def getPromptTemplatetData():
     question = request.form.get("question")
     suffix = request.form.get("suffix")
     example_format = request.form.get("example_format")
@@ -550,7 +538,7 @@ def getQuoteGenPostData():
     resdata = [    
     ]
     query = {"question": question}
-    response = chain.run(question)
+    response = chain.invoke(question)
     answer = response
     querydata = {'question': question,
              'answer': answer}
@@ -583,8 +571,7 @@ def getDataParserPostData():
     
     
 
-    resdata = [{
-    }
+    resdata = [
     ]
     query = {"question": question}
     response = chain.invoke(query)
@@ -619,8 +606,7 @@ def getReceipePostData():
     
     
 
-    resdata = [{
-    }
+    resdata = [
     ]
     query = {"question": question}
     response = chain.invoke(query)
@@ -655,8 +641,7 @@ def getLnsAgentPostData():
     
     
 
-    resdata = [{
-    }
+    resdata = [
     ]
     query = {"question": question}
     response = chain.invoke(query)
@@ -691,8 +676,7 @@ def getStuGenPostData():
     
     
 
-    resdata = [{
-    }
+    resdata = [
     ]
     query = {"question": question}
     response = chain.invoke(query)
@@ -711,28 +695,36 @@ def getStuGenPostData():
 @app.route("/getPictureCaptionForm", methods=['GET'])
 def getPictureCaptionForm():
     responsedata = { }
-    return render_template("pictureCaptioning.html", responsedata=responsedata, init_page="initpage")
+    question="image1.png"
+    return render_template("pictureCaptioning.html", question=question,responsedata=responsedata, init_page="initpage")
 
 @app.route("/getPictureCaptionPostData", methods=['POST'])
 def getPictureCaptionPostData():
     question = request.form.get("question")
     spec_str = """Open Library provides ."""
+    model_name = "bipin/image-caption-generator"
+    model = VisionEncoderDecoderModel.from_pretrained(model_name)
+    feature_extractor = ViTFeatureExtractor.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained("gpt2")
+    img_name = "static/Images/"+question
+    img = Image.open(img_name)
+    if img.mode != 'RGB':
+        img = img.convert(mode="RGB")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    pixel_values = feature_extractor(images=[img], return_tensors="pt").pixel_values
+    pixel_values = pixel_values.to(device)
+    max_length = 128
+    num_beams = 4
 
-    llm = ChatGoogleGenerativeAI(google_api_key=GEMINI_API_KEY, model=GEMINI_MODEL, temperature=0.9)
-    chain = APIChain.from_llm_and_api_docs(
-    llm,
-    spec_str,
-    #verbose = True,
-    limit_to_domains=["https://openlibrary.org/"])
-    
-    
+    output_ids = model.generate(pixel_values, num_beams=num_beams, max_length=max_length)
 
-    resdata = [{
-    }
+    preds = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+    
+    resdata = [
     ]
     query = {"question": question}
-    response = chain.invoke(query)
-    answer = response["output"]
+    answer = preds
     querydata = {'question': question,
              'answer': answer}
     resdata.append(querydata)
@@ -742,165 +734,6 @@ def getPictureCaptionPostData():
    
     return render_template("pictureCaptioning.html",  question=question, answer=answer, responsedata=responsedata, init_page="initpage")
     
-
-
-
-@app.route("/getSatellite/<cntry>/<numSat>")
-def satellite_country(cntry,numSat):
-
-    incrd =0
-    coordinatesjson = {}
-    resdata = [{
-  
-    }
-    ]
-
-    responsedata = { 'respdata': resdata
-    }
-
-    incdata = 0
-    
-    for record in sat_cnt_cnt:
-        coordinatesjson = {}
-        if (incrd >int(numSat)):
-            break
-        try: 
-            url = "https://api.n2yo.com/rest/v1/satellite/positions/"+str(record['satellite_id'])+"/41.702/-76.014/0/2/&apiKey=J3H9EJ-Z2GE6Y-BC2E6G-4LOF"
-            response = requests.get(url).json()            
-            tt = time.strftime("%D %H:%M", time.localtime(int(response['positions'][0]['timestamp'])))
-            tt2 = time.strftime("%D %H:%M", time.localtime(int(response['positions'][1]['timestamp'])))
-       
-            coordinatesjson['latitude'] = response['positions'][1]['satlatitude']            
-            coordinatesjson['longitude'] = response['positions'][1]['satlongitude']                      
-            coordinatesjson['azimuth'] = response['positions'][1]['azimuth']            
-            coordinatesjson['elevation'] = response['positions'][1]['elevation']            
-            coordinatesjson['altitude'] = response['positions'][1]['sataltitude']            
-            coordinatesjson['satname'] = response['info']['satname']            
-            coordinatesjson['satid'] = response['info']['satid'] 
-            coordinatesjson['datetime'] = tt2  
-            resdata.append(coordinatesjson)
-            incrd = incrd+1
-            incdata = incdata+1
-        except:
-            pass
-
-        responsedata['respdata'] = resdata
-    
-
-    # Build partial query URL
-   
-    return render_template("index.html", responsedata=responsedata,
-     init_page="notinitpage" )
-
-@app.route("/getSatelliteById/<satid>/<numSat>")
-def satellite_byid(satid,numSat):
-
-
-    
-    
-    
-    
-
-    incrd =0
-    coordinatesjson = {}
-    resdata = [{
-  
-    }
-    ]
-
-    responsedata = { 'respdata': resdata
-    }
-
-    incdata = 0
-    
-    for record in sat_cnt_cnt:
-        coordinatesjson = {}
-        if (incrd >int(numSat)):
-            break
-        try: 
-            url = "https://api.n2yo.com/rest/v1/satellite/positions/"+str(record['satellite_id'])+"/41.702/-76.014/0/2/&apiKey=J3H9EJ-Z2GE6Y-BC2E6G-4LOF"
-            response = requests.get(url).json()            
-            
-            tt = time.strftime("%D %H:%M", time.localtime(int(response['positions'][0]['timestamp'])))
-            tt2 = time.strftime("%D %H:%M", time.localtime(int(response['positions'][1]['timestamp'])))
-        
-            coordinatesjson['latitude'] = response['positions'][1]['satlatitude']            
-            coordinatesjson['longitude'] = response['positions'][1]['satlongitude']                      
-            coordinatesjson['azimuth'] = response['positions'][1]['azimuth']            
-            coordinatesjson['elevation'] = response['positions'][1]['elevation']            
-            coordinatesjson['altitude'] = response['positions'][1]['sataltitude']            
-            coordinatesjson['satname'] = response['info']['satname']            
-            coordinatesjson['satid'] = response['info']['satid'] 
-            coordinatesjson['datetime'] = tt2  
-            resdata.append(coordinatesjson)
-            incrd = incrd+1
-            incdata = incdata+1
-
-        except:
-            pass
-
-        responsedata['respdata'] = resdata
-    
-
-    # Build partial query URL
-   
-    return render_template("index.html", responsedata=responsedata,  
-    init_page="notinitpage" )
-
-@app.route("/getSatelliteByName/<satName>/<numSat>")
-def satellite_byname(satName,numSat):
-
-
-    
-    
-    
-    
-
-    incrd =0
-    coordinatesjson = {}
-    resdata = [{
-  
-    }
-    ]
-
-    responsedata = { 'respdata': resdata
-    }
-
-    incdata = 0
-    
-    for record in sat_cnt_cnt:
-        coordinatesjson = {}
-        if (incrd >int(numSat)):
-            break
-        try: 
-            url = "https://api.n2yo.com/rest/v1/satellite/positions/"+str(record['satellite_id'])+"/41.702/-76.014/0/2/&apiKey=J3H9EJ-Z2GE6Y-BC2E6G-4LOF"
-            response = requests.get(url).json()            
-         
-            tt = time.strftime("%D %H:%M", time.localtime(int(response['positions'][0]['timestamp'])))
-            tt2 = time.strftime("%D %H:%M", time.localtime(int(response['positions'][1]['timestamp'])))
-          
-            coordinatesjson['latitude'] = response['positions'][1]['satlatitude']            
-            coordinatesjson['longitude'] = response['positions'][1]['satlongitude']                      
-            coordinatesjson['azimuth'] = response['positions'][1]['azimuth']            
-            coordinatesjson['elevation'] = response['positions'][1]['elevation']            
-            coordinatesjson['altitude'] = response['positions'][1]['sataltitude']            
-            coordinatesjson['satname'] = response['info']['satname']            
-            coordinatesjson['satid'] = response['info']['satid'] 
-            coordinatesjson['datetime'] = tt2  
-            resdata.append(coordinatesjson)
-            incrd = incrd+1
-            incdata = incdata+1
-        except:
-            pass
-
-        responsedata['respdata'] = resdata
-    
-
-    # Build partial query URL
-   
-    return render_template("index.html", responsedata=responsedata,
-      init_page="notinitpage")
-
 
 
 if __name__ == "__main__":

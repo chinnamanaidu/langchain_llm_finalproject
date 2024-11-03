@@ -99,7 +99,7 @@
                 </li>
                 <li class="nav-item dropdown">
                   <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
-                    Emerging AI Topics Day 2
+                    Advanced AI Topics
                   </button>
                   <ul class="dropdown-menu dropdown-menu-dark">
                     <li><a class="dropdown-item" href="/getPromptTemplateForm">Prompt Templates</a></li>
@@ -124,7 +124,7 @@
                     Picure Captioning
                   </button>
                   <ul class="dropdown-menu dropdown-menu-dark">
-                    <li><a class="dropdown-item" href="/getPictureCaptionForm">URL Approach</a></li>
+                    <li><a class="dropdown-item" href="/getPictureCaptionForm">IMG folder</a></li>
                   </ul>
                 </li>                                
               </ul>
@@ -157,21 +157,36 @@
       -->
       <div class="col-md-10">
         <div class="well">
-          <h5>Enter the LLM Query: Ask a question about a book or author from openlibrary.org . Enter "exit" to quit.</h5>
-           
-          <form class="mb-3" action="/getOpenApiPostData" method="post">
+          <h5>Image caption module: the library files available for the images image1.png, image2.png ...</h5>
+ 
+          <form class="mb-3" action="/getPictureCaptionPostData" method="post">
             
             {%
               for geo in  responsedata['respdata'] %}
-            <input class="form-control mr-lg-2" type="text" name="question1" id="question1" placeholder="question1" 
-            aria-label="question1" value='{{ question }}' ><br>
-            <label for="exampleFormControlTextarea1" class="form-label">Answer to the qusetion from OpenAPI </label>
-            <textarea class="form-control" id="exampleFormControlTextarea1" id='answer', name='answer', rows="10">{{ answer  }} </textarea>
+              <h5>Image caption for the image chosen </h5> {{ question }} 
+            <label for="exampleFormControlTextarea1" class="form-label">Caption for the image from huggingface image caption library </label>
+            <h5>{{ answer  }} </h5>
             {%   
               endfor %}
-            <input class="form-control mr-lg-2" type="text" name="question" id="question" placeholder="question" aria-label="question"><br>
+              <h5>Enter the image file to create the caption (available images image1.png, image2.jpg, image3.png, ...</h5>          
+            <input class="form-control mr-lg-2" type="text" name="question" id="question" placeholder="question" aria-label="question" value={{ question  }}><br>
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Submit</button>
+ <!--           {% if responsedata['respdata'] == null %}
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            {% endif %}
+            -->
           </form>
+          <br><h6> filename: image1.png</h6>
+          <img src="/static/Images/image1.png" height="450px" width="450px" class="border border-primary"> <br>
+          <br><h6> filename: image2.png</h6>
+          <img src="/static/Images/image2.png" height="450px" width="450px" class="border border-primary"> <br>
+          <br><h6> filename: image3.png</h6>
+          <img src="/static/Images/image3.png" height="450px" width="450px" class="border border-primary"> <br>
+          <br><h6> filename: image4.png</h6>
+          <img src="/static/Images/image4.png" height="450px" width="450px" class="border border-primary"> <br>
+          
           <!--
           <select id="selDataset1" onchange="optionChanged(this.value)"></select>
           <br>
