@@ -9,10 +9,10 @@ from langchain.chains.constitutional_ai.models import ConstitutionalPrinciple
 from langchain.prompts import ChatPromptTemplate,FewShotPromptTemplate,PromptTemplate
 from langchain.chains import APIChain
 import os
-from langchain.document_loaders import PyPDFLoader
+
 from langchain.chains.question_answering import load_qa_chain
-from langchain_community.document_loaders import WikipediaLoader
-from transformers import VisionEncoderDecoderModel, ViTFeatureExtractor, AutoTokenizer
+from langchain_community.document_loaders import WikipediaLoader,PyPDFLoader
+from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 import torch
 from PIL import Image
                                                                           
@@ -23,7 +23,7 @@ load_dotenv()
 GEMINI_MODEL = "gemini-1.5-flash"
 GEMINI_API_KEY="AIzaSyAOda96fkiiGt0MhoNi-EJ0LnIaU0V4ZZM"
 NASA_API_KEY="cStYLuOKTMgTCVlLx9aIgtsP0rbg2qsm7uDPNSxW"
-
+TF_ENABLE_ONEDNN_OPTS = os.getenv("TF_ENABLE_ONEDNN_OPTS")
 #rds_connection_string = "postgres:bootcamp@localhost:5432/satellite"
 #<insert password>@localhost:5432/customer_db"
 #rds_connection_string = "postgres:admin@localhost:5432/satellite"
@@ -704,7 +704,7 @@ def getPictureCaptionPostData():
     spec_str = """Open Library provides ."""
     model_name = "bipin/image-caption-generator"
     model = VisionEncoderDecoderModel.from_pretrained(model_name)
-    feature_extractor = ViTFeatureExtractor.from_pretrained(model_name)
+    feature_extractor = ViTImageProcessor.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     img_name = "static/Images/"+question
     img = Image.open(img_name)
