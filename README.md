@@ -53,9 +53,9 @@ Question : How many albums has Leonard Cohen released?
 
 For the above question LLM uses the Wikipedia loader API to retrieve the required answer    Leonard Cohen released 15 albums
 
-##  LangChain OpenText Description Questions https://opentdb.com/api.php 
+##  LangChain OpenText Description Questions https://opentdb.com
 
-  Go to URL https://opentdb.com/api.php to get a plain text response, where
+  Go to URL https://opentdb.com/ to get a plain text response, where
         the category is of type Computers, Mathematics, or Mythology,
 
 The Source String Structure is also provided as input to choose the topic like (Computes, Mathematics and Mythology to ask the required question from these area)
