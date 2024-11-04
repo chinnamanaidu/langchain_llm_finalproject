@@ -10,15 +10,13 @@ Just like text- and image-generating models, music generators use complex transf
 
 There are dozens of generative AI tools available, and you likely have already put some of them to use. The goal of this activity is to give you an additional tool to draw from, so we recommend using a tool that is new to you.
 
-#### Content Generation Tool
+To Create a web app that generates articles, blog posts, or social media content based on user input or specified topics. ncorporate LangChain to manage the different steps of content creation, including research, drafting, and editing
 
-##### To Create a web app that generates articles, blog posts, or social media content based on user input or specified topics. ncorporate LangChain to manage the different steps of content creation, including research, drafting, and editing
+Data Analysis with Natural Language Queries
 
-##### Data Analysis with Natural Language Queries
+To Create a dashboard that allows users to perform data analysis by asking questions in natural language. Use GPT-4 to interpret the queries and LangChain to connect to data sources, execute queries, and return results in a user-friendly format. Document Summarization Tool
 
-##### To Create a dashboard that allows users to perform data analysis by asking questions in natural language. Use GPT-4 to interpret the queries and LangChain to connect to data sources, execute queries, and return results in a user-friendly format. Document Summarization Tool
-
-##### To Build an application that summarizes long documents or articles into concise summaries. Use LangChain to handle the document processing and GPT-4 for generating the summaries.
+To Build an application that summarizes long documents or articles into concise summaries. Use LangChain to handle the document processing and GPT-4 for generating the summaries.
  
 
 ## LangChain Google Chat API Intro
